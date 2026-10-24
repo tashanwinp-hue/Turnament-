@@ -1,0 +1,6 @@
+{
+  "name": "BATTLE ARENA Esports Tournament",
+  "description": "Premier Free Fire Battle Royale & Clash Squad esports tournament platform with real-time registrations, slot management, custom room distribution, leaderboards, and admin control.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

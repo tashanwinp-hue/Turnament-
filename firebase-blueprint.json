@@ -1,0 +1,106 @@
+{
+  "entities": {
+    "Tournament": {
+      "title": "Tournament",
+      "description": "Esports tournament record for Free Fire BR and CS modes",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string", "maxLength": 100 },
+        "game": { "type": "string", "enum": ["free_fire"] },
+        "mode": { "type": "string", "enum": ["br", "cs"] },
+        "format": { "type": "string", "enum": ["solo", "duo", "squad"] },
+        "map": { "type": "string", "maxLength": 50 },
+        "entryFee": { "type": "number" },
+        "prizePool": { "type": "string", "maxLength": 100 },
+        "maxSlots": { "type": "number" },
+        "registeredCount": { "type": "number" },
+        "scheduleTime": { "type": "string", "maxLength": 50 },
+        "status": { "type": "string", "enum": ["upcoming", "open", "room_released", "live", "completed", "cancelled"] },
+        "roomId": { "type": "string", "maxLength": 50 },
+        "roomPassword": { "type": "string", "maxLength": 50 },
+        "rules": { "type": "string", "maxLength": 1000 },
+        "createdBy": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["title", "game", "mode", "format", "entryFee", "maxSlots", "registeredCount", "status", "createdBy"]
+    },
+    "Registration": {
+      "title": "Registration",
+      "description": "User registration for a specific tournament slot",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "tournamentId": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "userEmail": { "type": "string", "maxLength": 128 },
+        "playerName": { "type": "string", "maxLength": 60 },
+        "freeFireUid": { "type": "string", "maxLength": 20 },
+        "inGameName": { "type": "string", "maxLength": 40 },
+        "teamName": { "type": "string", "maxLength": 50 },
+        "teammates": { "type": "string", "maxLength": 300 },
+        "registeredAt": { "type": "string" },
+        "slotNumber": { "type": "number" },
+        "status": { "type": "string", "enum": ["confirmed", "cancelled"] }
+      },
+      "required": ["tournamentId", "userId", "freeFireUid", "inGameName", "status"]
+    },
+    "MatchResult": {
+      "title": "MatchResult",
+      "description": "Placement, kills, and points result for a participant/team",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "tournamentId": { "type": "string", "maxLength": 128 },
+        "rank": { "type": "number" },
+        "participantName": { "type": "string", "maxLength": 60 },
+        "teamName": { "type": "string", "maxLength": 60 },
+        "freeFireUid": { "type": "string", "maxLength": 20 },
+        "kills": { "type": "number" },
+        "placementPoints": { "type": "number" },
+        "killPoints": { "type": "number" },
+        "totalPoints": { "type": "number" },
+        "isWinner": { "type": "boolean" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["tournamentId", "rank", "participantName", "kills", "totalPoints"]
+    },
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Player profile and lifetime tournament stats",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 128 },
+        "displayName": { "type": "string", "maxLength": 60 },
+        "freeFireUid": { "type": "string", "maxLength": 20 },
+        "inGameName": { "type": "string", "maxLength": 40 },
+        "matchesPlayed": { "type": "number" },
+        "totalKills": { "type": "number" },
+        "booyahs": { "type": "number" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "email"]
+    }
+  },
+  "firestore": {
+    "/tournaments/{tournamentId}": {
+      "schema": { "$ref": "#/entities/Tournament" },
+      "description": "List of Battle Arena Free Fire tournaments (BR & CS)"
+    },
+    "/tournaments/{tournamentId}/registrations/{registrationId}": {
+      "schema": { "$ref": "#/entities/Registration" },
+      "description": "Player slot registrations under a tournament"
+    },
+    "/tournaments/{tournamentId}/results/{resultId}": {
+      "schema": { "$ref": "#/entities/MatchResult" },
+      "description": "Match leaderboards and kill/placement results"
+    },
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Player profile and lifetime tournament stats"
+    }
+  }
+}

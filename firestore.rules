@@ -1,0 +1,70 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'ranjeetraj10100@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Admins document collection
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // User profiles (Public esports stats read; owner write)
+    match /users/{userId} {
+      allow read: if true;
+      allow create: if isOwner(userId) || isAdmin();
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Tournaments (Public read of schedules and maps; admin write)
+    match /tournaments/{tournamentId} {
+      allow read: if true;
+      allow create: if isAdmin();
+      allow update: if isAdmin() || (
+        isSignedIn() &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['registeredCount', 'updatedAt'])
+      );
+      allow delete: if isAdmin();
+
+      // Registrations subcollection
+      match /registrations/{registrationId} {
+        allow read: if true;
+        allow create: if isSignedIn() && (
+          request.resource.data.userId == request.auth.uid || isAdmin()
+        );
+        allow update: if isAdmin() || (
+          isSignedIn() && resource.data.userId == request.auth.uid
+        );
+        allow delete: if isAdmin() || (
+          isSignedIn() && resource.data.userId == request.auth.uid
+        );
+      }
+
+      // Match Results & Leaderboards
+      match /results/{resultId} {
+        allow read: if true;
+        allow write: if isAdmin();
+      }
+    }
+  }
+}
